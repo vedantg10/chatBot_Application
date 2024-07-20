@@ -1,65 +1,18 @@
-import openai
-from dotenv import load_dotenv
-from colorama import Fore
-import os
+import streamlit as st
+from handlers import generate_chat_completion
+from collections.abc import Iterable
 
+# Streamlit App
+st.title("😂 Funny Chatbot App")  # Add a title
 
-# Constants
-MODEL_ENGINE = "gpt-4o-mini"
-MESSAGE_SYSTEM = "You are a helpful assistant"
-messages = [{"role": "system", "content": MESSAGE_SYSTEM}]
+# User input
+with st.form("user_form", clear_on_submit=True):
+    user_input = st.text_input("Type something")
+    submit_button = st.form_submit_button(label="Send")
 
-# Load the environment variables - set up the OpenAI API client
-load_dotenv()
-client = openai.OpenAI()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Press Enter to generate response from chatbot
 
-
-def generate_chat_completion(user_input=""):
-    messages.append({"role": "user", "content": user_input})
-    response = client.Completion.create(
-        engine=MODEL_ENGINE,
-        messages=messages,
-        max_tokens=150,
-    )
-    message = response.choices[0].message
-    messages.append(message)
-    print(Fore.GREEN + "Bot: " + messages.choices[0].messag.content)
-
-
-def main():
-    while True:
-        print("\n")
-        print("----------------------------------------\n")
-        print(" *** 🤖 WELCOME TO THE AI-CHATBOT *** ")
-        print("\n----------------------------------------")
-        print("\n================* MENU *================\n")
-        print("[1]- Start Chat")
-        print("[2]- Exit")
-        choice = input("Enter your choice: ")
-        if choice == "1":
-            start_chat()
-        elif choice == "2":
-            exit()
-        else:
-            print("Invalid choice")
-
-
-def start_chat():
-    print("to end chat, type 'x'")
-    print("\n")
-    print("      NEW CHAT       ")
-    print("---------------------")
-
-    while True:
-        user_input = input(Fore.WHITE + "You: ")
-
-        if user_input.lower() == "x":
-            main()
-            break
-        else:
-            generate_chat_completion(user_input)
-
-
-if __name__ == "__main__":
-    main()
+if submit_button:
+    with st.spinner("wait for it..."):
+        completion = generate_chat_completion(user_input)
+        st.write(completion)
